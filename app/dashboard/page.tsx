@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { headers } from "next/headers"
+import { CalendarRange, ArrowRight } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { getDeals } from "@/app/actions/deals"
 import { toDealView, computeStats } from "@/lib/deal-stats"
@@ -33,6 +35,24 @@ export default async function DashboardPage() {
           </div>
           <AddDealForm />
         </div>
+
+        <Link
+          href="/dashboard/meal-plan"
+          className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <CalendarRange className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="font-semibold text-foreground">Plan meals on a budget</p>
+              <p className="text-sm text-muted-foreground text-pretty">
+                Get an AI 7-day meal plan and shopping list that fits your weekly grocery budget.
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+        </Link>
 
         {deals.length === 0 ? (
           <div className="mt-8">

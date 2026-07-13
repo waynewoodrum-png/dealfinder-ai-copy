@@ -5,6 +5,8 @@ import {
   boolean,
   serial,
   numeric,
+  integer,
+  jsonb,
 } from "drizzle-orm/pg-core"
 
 // ---------------------------------------------------------------------------
@@ -73,5 +75,17 @@ export const deal = pgTable("deal", {
   originalPrice: numeric("originalPrice", { precision: 10, scale: 2 }).notNull(),
   dealPrice: numeric("dealPrice", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull().default("active"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
+
+export const mealPlan = pgTable("meal_plan", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  budget: numeric("budget", { precision: 10, scale: 2 }).notNull(),
+  household: integer("household").notNull().default(1),
+  diet: text("diet").notNull().default("No restrictions"),
+  store: text("store").notNull(),
+  estimatedTotal: numeric("estimatedTotal", { precision: 10, scale: 2 }).notNull(),
+  plan: jsonb("plan").notNull(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
