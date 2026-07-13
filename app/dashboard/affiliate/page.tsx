@@ -4,25 +4,28 @@ import { headers } from "next/headers"
 import { ArrowLeft } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { MealPlanner } from "@/components/dashboard/meal-planner"
-import { getMealPlans } from "@/app/actions/meal-plan"
-import { getAffiliateConfig } from "@/app/actions/affiliate"
+import { AffiliatePanel } from "@/components/dashboard/affiliate-panel"
+import { getAffiliateConfig, getAffiliateStats } from "@/app/actions/affiliate"
+import { getCoinSummary } from "@/app/actions/coins"
 
 export const metadata = {
-  title: "Meal Planner | DealFinder AI",
-  description: "AI-powered weekly budget meal plans and grocery shopping lists.",
+  title: "Earnings & Affiliate | DealFinder AI",
+  description: "Turn shopping into profit. Connect affiliate accounts and track estimated commissions.",
 }
 
-export default async function MealPlanPage() {
+export default async function AffiliatePage() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect("/sign-in")
 
-  const savedPlans = await getMealPlans()
-  const affiliateConfig = await getAffiliateConfig()
+  const [config, stats, coins] = await Promise.all([
+    getAffiliateConfig(),
+    getAffiliateStats(),
+    getCoinSummary(),
+  ])
 
   return (
     <div className="min-h-dvh bg-background">
-      <DashboardHeader name={session.user.name} email={session.user.email} />
+      <DashboardHeader name={session.user.name} email={session.user.email} coinBalance={coins.balance} />
       <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
         <Link
           href="/dashboard"
@@ -33,13 +36,14 @@ export default async function MealPlanPage() {
         </Link>
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground text-balance">
-            Meal planner
+            Earnings &amp; affiliate
           </h1>
           <p className="mt-1 text-muted-foreground text-pretty">
-            Plan a full week of meals and a smart shopping list that fits your grocery budget.
+            Make money when shoppers buy through your deals and meal-plan shopping lists. Connect your
+            affiliate accounts and every &quot;Shop&quot; link earns you a commission.
           </p>
         </div>
-        <MealPlanner savedPlans={savedPlans} affiliateEnabled={affiliateConfig.enabled} />
+        <AffiliatePanel config={config} stats={stats} />
       </main>
     </div>
   )

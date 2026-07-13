@@ -30,7 +30,13 @@ function householdLabel(v: string) {
   return v === "1" ? "1 person" : `${v} people`
 }
 
-export function MealPlanner({ savedPlans }: { savedPlans: SavedMealPlan[] }) {
+export function MealPlanner({
+  savedPlans,
+  affiliateEnabled = true,
+}: {
+  savedPlans: SavedMealPlan[]
+  affiliateEnabled?: boolean
+}) {
   const router = useRouter()
   const [budget, setBudget] = useState("200")
   const [household, setHousehold] = useState("1")
@@ -193,7 +199,7 @@ export function MealPlanner({ savedPlans }: { savedPlans: SavedMealPlan[] }) {
               </Button>
             </div>
           </div>
-          <MealPlanResult data={result} budget={usedBudget} />
+          <MealPlanResult data={result} budget={usedBudget} affiliateEnabled={affiliateEnabled} />
         </div>
       )}
 
@@ -221,7 +227,7 @@ export function MealPlanner({ savedPlans }: { savedPlans: SavedMealPlan[] }) {
                 <Badge className="shrink-0 bg-primary/10 text-primary">${p.estimatedTotal.toFixed(2)}</Badge>
               </summary>
               <div className="border-t border-border p-4">
-                <MealPlanResult data={p.plan} budget={p.budget} />
+                <MealPlanResult data={p.plan} budget={p.budget} affiliateEnabled={affiliateEnabled} />
                 <Button
                   variant="ghost"
                   onClick={() => handleDelete(p.id)}

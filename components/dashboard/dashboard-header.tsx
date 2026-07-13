@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { TrendingDown, LogOut, Coins, Gift } from "lucide-react"
+import { TrendingDown, LogOut, Coins, Gift, DollarSign } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import { formatCoins } from "@/lib/coins"
 import { Button } from "@/components/ui/button"
@@ -82,6 +82,10 @@ export function DashboardHeader({
               <DropdownMenuItem onClick={() => router.push("/dashboard/rewards")}>
                 <Gift className="h-4 w-4" aria-hidden="true" />
                 Rewards &amp; coins
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/affiliate")}>
+                <DollarSign className="h-4 w-4" aria-hidden="true" />
+                Earnings &amp; affiliate
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
