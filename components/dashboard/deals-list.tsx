@@ -1,14 +1,21 @@
 "use client"
 
 import { useTransition } from "react"
-import { Check, Trash2, RotateCcw } from "lucide-react"
+import { Check, Trash2, RotateCcw, ShoppingBag } from "lucide-react"
 import { updateDealStatus, deleteDeal } from "@/app/actions/deals"
+import { recordAffiliateClick } from "@/app/actions/affiliate"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { type DealView, formatCurrency } from "@/lib/deal-stats"
 
-export function DealsList({ deals }: { deals: DealView[] }) {
+export function DealsList({
+  deals,
+  affiliateEnabled = true,
+}: {
+  deals: DealView[]
+  affiliateEnabled?: boolean
+}) {
   const active = deals.filter((d) => d.status === "active")
   const claimed = deals.filter((d) => d.status === "claimed")
 
@@ -19,12 +26,14 @@ export function DealsList({ deals }: { deals: DealView[] }) {
         description="Deals the AI found that are ready to claim"
         deals={active}
         emptyLabel="No active deals right now. Track an item and we'll watch its price."
+        affiliateEnabled={affiliateEnabled}
       />
       <DealGroup
         title="Claimed savings"
         description="Deals you've already locked in"
         deals={claimed}
         emptyLabel="Claim an active deal to start building your savings."
+        affiliateEnabled={affiliateEnabled}
       />
     </div>
   )
@@ -35,11 +44,13 @@ function DealGroup({
   description,
   deals,
   emptyLabel,
+  affiliateEnabled,
 }: {
   title: string
   description: string
   deals: DealView[]
   emptyLabel: string
+  affiliateEnabled: boolean
 }) {
   return (
     <section aria-label={title}>
@@ -58,7 +69,7 @@ function DealGroup({
       ) : (
         <ul className="mt-4 flex flex-col gap-3">
           {deals.map((deal) => (
-            <DealCard key={deal.id} deal={deal} />
+            <DealCard key={deal.id} deal={deal} affiliateEnabled={affiliateEnabled} />
           ))}
         </ul>
       )}
@@ -66,9 +77,30 @@ function DealGroup({
   )
 }
 
-function DealCard({ deal }: { deal: DealView }) {
+function DealCard({ deal, affiliateEnabled }: { deal: DealView; affiliateEnabled: boolean }) {
   const [isPending, startTransition] = useTransition()
   const isClaimed = deal.status === "claimed"
+
+  function handleShop() {
+    // Open a placeholder synchronously so the browser doesn't block the popup,
+    // then redirect it to the tracked affiliate URL once recorded.
+    const win = window.open("", "_blank", "noopener,noreferrer")
+    startTransition(async () => {
+      try {
+        const { url } = await recordAffiliateClick({
+          source: "deal",
+          label: deal.title,
+          merchant: deal.merchant,
+          query: deal.title,
+          price: deal.dealPrice,
+        })
+        if (win) win.location.href = url
+        else window.open(url, "_blank", "noopener,noreferrer")
+      } catch {
+        if (win) win.close()
+      }
+    })
+  }
 
   return (
     <li>
@@ -93,6 +125,18 @@ function DealCard({ deal }: { deal: DealView }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          {affiliateEnabled && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={handleShop}
+              className="min-h-10 bg-transparent"
+            >
+              <ShoppingBag className="h-4 w-4" aria-hidden="true" />
+              Shop
+            </Button>
+          )}
           {isClaimed ? (
             <Button
               variant="outline"

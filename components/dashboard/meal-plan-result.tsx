@@ -1,11 +1,14 @@
 "use client"
 
-import { Store, Lightbulb, UtensilsCrossed, ShoppingCart } from "lucide-react"
+import { useTransition } from "react"
+import { Store, Lightbulb, UtensilsCrossed, ShoppingCart, ShoppingBag } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { recordAffiliateClick } from "@/app/actions/affiliate"
 import type { MealPlanData } from "@/lib/meal-plan"
 
 const CATEGORY_ORDER = [
@@ -22,7 +25,15 @@ function money(n: number) {
   return `$${n.toFixed(2)}`
 }
 
-export function MealPlanResult({ data, budget }: { data: MealPlanData; budget: number }) {
+export function MealPlanResult({
+  data,
+  budget,
+  affiliateEnabled = true,
+}: {
+  data: MealPlanData
+  budget: number
+  affiliateEnabled?: boolean
+}) {
   const pct = Math.min(100, Math.round((data.estimatedTotal / budget) * 100))
   const remaining = budget - data.estimatedTotal
 
@@ -117,7 +128,12 @@ export function MealPlanResult({ data, budget }: { data: MealPlanData; budget: n
                       <p className="text-sm font-medium text-foreground">{item.item}</p>
                       <p className="text-xs text-muted-foreground">{item.quantity}</p>
                     </div>
-                    <span className="shrink-0 font-mono text-sm text-foreground">{money(item.price)}</span>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="font-mono text-sm text-foreground">{money(item.price)}</span>
+                      {affiliateEnabled && (
+                        <ShopItemButton store={data.store} item={item.item} price={item.price} />
+                      )}
+                    </div>
                   </div>
                 ))}
               </CardContent>
@@ -147,6 +163,42 @@ export function MealPlanResult({ data, budget }: { data: MealPlanData; budget: n
         </Card>
       )}
     </div>
+  )
+}
+
+function ShopItemButton({ store, item, price }: { store: string; item: string; price: number }) {
+  const [isPending, startTransition] = useTransition()
+
+  function handleShop() {
+    const win = window.open("", "_blank", "noopener,noreferrer")
+    startTransition(async () => {
+      try {
+        const { url } = await recordAffiliateClick({
+          source: "shopping",
+          label: item,
+          merchant: store,
+          query: item,
+          price,
+        })
+        if (win) win.location.href = url
+        else window.open(url, "_blank", "noopener,noreferrer")
+      } catch {
+        if (win) win.close()
+      }
+    })
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      disabled={isPending}
+      onClick={handleShop}
+      className="h-8 w-8 text-muted-foreground hover:text-primary"
+      aria-label={`Shop ${item} at ${store}`}
+    >
+      <ShoppingBag className="h-4 w-4" aria-hidden="true" />
+    </Button>
   )
 }
 

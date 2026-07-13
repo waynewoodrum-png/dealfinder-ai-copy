@@ -2,8 +2,8 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { deal, coinTransaction } from "@/lib/db/schema"
-import { and, desc, eq, sql } from "drizzle-orm"
+import { deal } from "@/lib/db/schema"
+import { and, desc, eq } from "drizzle-orm"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { syncStreakCoins } from "@/app/actions/coins"

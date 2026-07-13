@@ -100,3 +100,26 @@ export const coinTransaction = pgTable("coin_transaction", {
   refKey: text("refKey"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
+
+// Single global row (id = "global") holding the app owner's affiliate config.
+export const affiliateSetting = pgTable("affiliate_setting", {
+  id: text("id").primaryKey(),
+  amazonTag: text("amazonTag").notNull().default(""),
+  linkWrapperBase: text("linkWrapperBase").notNull().default(""),
+  commissionRate: numeric("commissionRate", { precision: 5, scale: 4 }).notNull().default("0.03"),
+  enabled: boolean("enabled").notNull().default(true),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+})
+
+// Outbound affiliate click log used to project earnings.
+export const affiliateClick = pgTable("affiliate_click", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  source: text("source").notNull(), // "deal" | "shopping"
+  label: text("label").notNull(),
+  merchant: text("merchant").notNull(),
+  url: text("url").notNull(),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull().default("0"),
+  estCommission: numeric("estCommission", { precision: 10, scale: 2 }).notNull().default("0"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})
