@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { headers } from "next/headers"
-import { CalendarRange, ArrowRight } from "lucide-react"
+import { CalendarRange, ArrowRight, Gift } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { getDeals } from "@/app/actions/deals"
+import { getCoinSummary } from "@/app/actions/coins"
+import { formatCoins } from "@/lib/coins"
 import { toDealView, computeStats } from "@/lib/deal-stats"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { StatOverview } from "@/components/dashboard/stat-overview"
@@ -19,11 +21,16 @@ export default async function DashboardPage() {
   const rows = await getDeals()
   const deals = rows.map(toDealView)
   const stats = computeStats(deals)
+  const coinSummary = await getCoinSummary()
   const firstName = session.user.name?.split(" ")[0] || "there"
 
   return (
     <div className="min-h-svh bg-background">
-      <DashboardHeader name={session.user.name} email={session.user.email} />
+      <DashboardHeader
+        name={session.user.name}
+        email={session.user.email}
+        coinBalance={coinSummary.balance}
+      />
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -36,23 +43,45 @@ export default async function DashboardPage() {
           <AddDealForm />
         </div>
 
-        <Link
-          href="/dashboard/meal-plan"
-          className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
-        >
-          <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <CalendarRange className="h-5 w-5" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="font-semibold text-foreground">Plan meals on a budget</p>
-              <p className="text-sm text-muted-foreground text-pretty">
-                Get an AI 7-day meal plan and shopping list that fits your weekly grocery budget.
-              </p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/dashboard/meal-plan"
+            className="flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <CalendarRange className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="font-semibold text-foreground">Plan meals on a budget</p>
+                <p className="text-sm text-muted-foreground text-pretty">
+                  AI 7-day meal plan and shopping list that fits your grocery budget.
+                </p>
+              </div>
             </div>
-          </div>
-          <ArrowRight className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-        </Link>
+            <ArrowRight className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+          </Link>
+
+          <Link
+            href="/dashboard/rewards"
+            className="flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Gift className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="font-semibold text-foreground">
+                  {formatCoins(coinSummary.balance)} coins earned
+                </p>
+                <p className="text-sm text-muted-foreground text-pretty">
+                  Redeem your savings streak coins for money off your next purchase.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+          </Link>
+        </div>
 
         {deals.length === 0 ? (
           <div className="mt-8">

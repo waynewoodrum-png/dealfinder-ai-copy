@@ -89,3 +89,14 @@ export const mealPlan = pgTable("meal_plan", {
   plan: jsonb("plan").notNull(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
+
+export const coinTransaction = pgTable("coin_transaction", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  type: text("type").notNull(), // "earn" | "redeem"
+  coins: integer("coins").notNull(),
+  dollars: numeric("dollars", { precision: 10, scale: 2 }).notNull().default("0"),
+  reason: text("reason").notNull(),
+  refKey: text("refKey"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+})

@@ -6,6 +6,7 @@ import { deal } from "@/lib/db/schema"
 import { and, desc, eq } from "drizzle-orm"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
+import { syncStreakCoins } from "@/app/actions/coins"
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -46,6 +47,7 @@ export async function updateDealStatus(id: number, status: "active" | "claimed" 
     .update(deal)
     .set({ status })
     .where(and(eq(deal.id, id), eq(deal.userId, userId)))
+  await syncStreakCoins(userId)
   revalidatePath("/dashboard")
 }
 
@@ -79,5 +81,6 @@ export async function seedDeals() {
       status: d.status,
     })),
   )
+  await syncStreakCoins(userId)
   revalidatePath("/dashboard")
 }
