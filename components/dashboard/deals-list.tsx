@@ -1,13 +1,48 @@
 "use client"
 
-import { useTransition } from "react"
-import { Check, Trash2, RotateCcw, ShoppingBag } from "lucide-react"
+import { useMemo, useState, useTransition } from "react"
+import { Check, Trash2, RotateCcw, ShoppingBag, Search, X, SlidersHorizontal } from "lucide-react"
 import { updateDealStatus, deleteDeal } from "@/app/actions/deals"
 import { recordAffiliateClick } from "@/app/actions/affiliate"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { type DealView, formatCurrency } from "@/lib/deal-stats"
+
+type SortKey = "discount" | "savings" | "price" | "newest"
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "discount", label: "Biggest discount" },
+  { value: "savings", label: "Biggest savings" },
+  { value: "price", label: "Lowest price" },
+  { value: "newest", label: "Newest" },
+]
+
+function sortLabel(value: string): string {
+  return SORT_OPTIONS.find((o) => o.value === value)?.label ?? "Sort"
+}
+
+function sortDeals(deals: DealView[], sort: SortKey): DealView[] {
+  const copy = [...deals]
+  switch (sort) {
+    case "discount":
+      return copy.sort((a, b) => b.discountPct - a.discountPct)
+    case "savings":
+      return copy.sort((a, b) => b.savings - a.savings)
+    case "price":
+      return copy.sort((a, b) => a.dealPrice - b.dealPrice)
+    case "newest":
+      return copy.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+  }
+}
 
 export function DealsList({
   deals,
@@ -16,25 +51,150 @@ export function DealsList({
   deals: DealView[]
   affiliateEnabled?: boolean
 }) {
-  const active = deals.filter((d) => d.status === "active")
-  const claimed = deals.filter((d) => d.status === "claimed")
+  const [query, setQuery] = useState("")
+  const [category, setCategory] = useState("All")
+  const [sort, setSort] = useState<SortKey>("discount")
+
+  const categories = useMemo(() => {
+    const set = new Set(deals.map((d) => d.category))
+    return ["All", ...Array.from(set).sort()]
+  }, [deals])
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    const matches = deals.filter((d) => {
+      const inCategory = category === "All" || d.category === category
+      if (!inCategory) return false
+      if (!q) return true
+      return (
+        d.title.toLowerCase().includes(q) ||
+        d.merchant.toLowerCase().includes(q) ||
+        d.category.toLowerCase().includes(q)
+      )
+    })
+    return sortDeals(matches, sort)
+  }, [deals, query, category, sort])
+
+  const active = filtered.filter((d) => d.status === "active")
+  const claimed = filtered.filter((d) => d.status === "claimed")
+  const isFiltering = query.trim() !== "" || category !== "All"
+  const totalMatches = filtered.length
 
   return (
-    <div className="flex flex-col gap-8">
-      <DealGroup
-        title="Active price drops"
-        description="Deals the AI found that are ready to claim"
-        deals={active}
-        emptyLabel="No active deals right now. Track an item and we'll watch its price."
-        affiliateEnabled={affiliateEnabled}
-      />
-      <DealGroup
-        title="Claimed savings"
-        description="Deals you've already locked in"
-        deals={claimed}
-        emptyLabel="Claim an active deal to start building your savings."
-        affiliateEnabled={affiliateEnabled}
-      />
+    <div className="flex flex-col gap-6">
+      {/* Search + filter toolbar */}
+      <div className="flex flex-col gap-3">
+        <div className="relative">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search deals by product, merchant, or category"
+            aria-label="Search deals"
+            className="h-11 pl-9 pr-9 text-base"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+            {categories.map((c) => {
+              const selected = c === category
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCategory(c)}
+                  aria-pressed={selected}
+                  className={`min-h-9 rounded-full border px-3 text-sm font-medium transition-colors ${
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {c}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+              <SelectTrigger className="h-9 w-[180px] text-sm" aria-label="Sort deals">
+                <SelectValue>{(value) => sortLabel(value as string)}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {isFiltering && (
+          <p className="text-xs text-muted-foreground" aria-live="polite">
+            {totalMatches === 0
+              ? "No deals match your search."
+              : `${totalMatches} ${totalMatches === 1 ? "deal" : "deals"} found`}
+            {category !== "All" ? ` in ${category}` : ""}
+            {query.trim() ? ` for “${query.trim()}”` : ""}
+          </p>
+        )}
+      </div>
+
+      {isFiltering && totalMatches === 0 ? (
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border p-8 text-center">
+          <Search className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+          <p className="text-sm text-muted-foreground text-pretty">
+            No deals match your filters. Try a different search or category.
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-transparent"
+            onClick={() => {
+              setQuery("")
+              setCategory("All")
+            }}
+          >
+            Clear filters
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-8">
+          <DealGroup
+            title="Active price drops"
+            description="Deals the AI found that are ready to claim"
+            deals={active}
+            emptyLabel="No active deals right now. Track an item and we'll watch its price."
+            affiliateEnabled={affiliateEnabled}
+          />
+          <DealGroup
+            title="Claimed savings"
+            description="Deals you've already locked in"
+            deals={claimed}
+            emptyLabel="Claim an active deal to start building your savings."
+            affiliateEnabled={affiliateEnabled}
+          />
+        </div>
+      )}
     </div>
   )
 }
