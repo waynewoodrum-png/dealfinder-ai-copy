@@ -11,10 +11,24 @@ export const STREAK_MILESTONES: { weeks: number; bonus: number }[] = [
   { weeks: 12, bonus: 200 },
 ]
 
+// Coins granted for a saved weekly meal plan that lands at or under budget.
+export const COINS_PER_MEAL_PLAN = 25
+
+// Coins granted for a daily check-in (once per calendar day).
+export const DAILY_CHECKIN_COINS = 5
+
 // Preset redemption tiers (dollars off).
 export const REDEEM_TIERS = [5, 10, 25]
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
+
+/** Stable per-day key used to make daily check-ins idempotent. */
+export function dailyCheckInKey(date = new Date()): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, "0")
+  const d = String(date.getDate()).padStart(2, "0")
+  return `checkin:${y}-${m}-${d}`
+}
 
 export function coinsToDollars(coins: number): number {
   return coins / COINS_PER_DOLLAR

@@ -6,7 +6,14 @@ import { coinTransaction, deal } from "@/lib/db/schema"
 import { and, desc, eq, sql } from "drizzle-orm"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { computeStreakAwards, coinsToDollars, dollarsToCoins, COINS_PER_DOLLAR } from "@/lib/coins"
+import {
+  computeStreakAwards,
+  coinsToDollars,
+  dollarsToCoins,
+  COINS_PER_DOLLAR,
+  DAILY_CHECKIN_COINS,
+  dailyCheckInKey,
+} from "@/lib/coins"
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -22,6 +29,7 @@ export type CoinSummary = {
   redeemedDollars: number
   availableDollars: number
   perDollar: number
+  checkedInToday: boolean
   transactions: {
     id: number
     type: string
@@ -75,21 +83,27 @@ export async function getCoinSummary(): Promise<CoinSummary> {
   let lifetimeEarned = 0
   let redeemedCoins = 0
   let redeemedDollars = 0
+  let spentDollars = 0
   for (const r of rows) {
     if (r.type === "earn") lifetimeEarned += r.coins
-    else {
+    else if (r.type === "redeem") {
       redeemedCoins += r.coins
       redeemedDollars += Number(r.dollars)
+    } else if (r.type === "spend") {
+      spentDollars += Number(r.dollars)
     }
   }
   const balance = lifetimeEarned - redeemedCoins
+  const todayKey = dailyCheckInKey()
+  const checkedInToday = rows.some((r) => r.refKey === todayKey)
 
   return {
     balance,
     lifetimeEarned,
     redeemedDollars,
-    availableDollars: redeemedDollars,
+    availableDollars: Math.max(0, redeemedDollars - spentDollars),
     perDollar: COINS_PER_DOLLAR,
+    checkedInToday,
     transactions: rows.map((r) => ({
       id: r.id,
       type: r.type,
@@ -142,6 +156,43 @@ export async function redeemCoins(dollars: number): Promise<RedeemResult> {
   revalidatePath("/dashboard/rewards")
   revalidatePath("/dashboard")
   return { ok: true, dollars: roundedDollars, coins: cost }
+}
+
+export type CheckInResult = { ok: true; coins: number; alreadyDone: boolean }
+
+/**
+ * Award a daily check-in bonus, once per calendar day. Deduped by the
+ * (userId, refKey) unique index so repeat calls are safe.
+ */
+export async function dailyCheckIn(): Promise<CheckInResult> {
+  const userId = await getUserId()
+  const key = dailyCheckInKey()
+
+  const existing = await db
+    .select({ id: coinTransaction.id })
+    .from(coinTransaction)
+    .where(and(eq(coinTransaction.userId, userId), eq(coinTransaction.refKey, key)))
+    .limit(1)
+
+  if (existing.length > 0) {
+    return { ok: true, coins: DAILY_CHECKIN_COINS, alreadyDone: true }
+  }
+
+  await db
+    .insert(coinTransaction)
+    .values({
+      userId,
+      type: "earn",
+      coins: DAILY_CHECKIN_COINS,
+      dollars: "0",
+      reason: "Daily check-in bonus",
+      refKey: key,
+    })
+    .onConflictDoNothing()
+
+  revalidatePath("/dashboard/rewards")
+  revalidatePath("/dashboard")
+  return { ok: true, coins: DAILY_CHECKIN_COINS, alreadyDone: false }
 }
 
 // Re-exported for display components.

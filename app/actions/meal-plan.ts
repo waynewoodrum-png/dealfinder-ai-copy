@@ -3,11 +3,12 @@
 import { generateObject } from "ai"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { mealPlan } from "@/lib/db/schema"
+import { mealPlan, coinTransaction } from "@/lib/db/schema"
 import { and, desc, eq } from "drizzle-orm"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { mealPlanSchema, type MealPlanData, type SavedMealPlan } from "@/lib/meal-plan"
+import { COINS_PER_MEAL_PLAN } from "@/lib/coins"
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -66,18 +67,45 @@ Requirements:
   }
 }
 
-export async function saveMealPlan(input: GenerateInput, data: MealPlanData) {
+export async function saveMealPlan(
+  input: GenerateInput,
+  data: MealPlanData,
+): Promise<{ coinsAwarded: number }> {
   const userId = await getUserId()
-  await db.insert(mealPlan).values({
-    userId,
-    budget: String(input.budget),
-    household: input.household,
-    diet: input.diet,
-    store: data.store,
-    estimatedTotal: String(data.estimatedTotal),
-    plan: data,
-  })
+  const [inserted] = await db
+    .insert(mealPlan)
+    .values({
+      userId,
+      budget: String(input.budget),
+      household: input.household,
+      diet: input.diet,
+      store: data.store,
+      estimatedTotal: String(data.estimatedTotal),
+      plan: data,
+    })
+    .returning({ id: mealPlan.id })
+
+  // Reward plans that come in at or under the weekly budget.
+  let coinsAwarded = 0
+  if (inserted && data.estimatedTotal <= input.budget) {
+    const res = await db
+      .insert(coinTransaction)
+      .values({
+        userId,
+        type: "earn",
+        coins: COINS_PER_MEAL_PLAN,
+        dollars: "0",
+        reason: "Meal plan under budget",
+        refKey: `mealplan:${inserted.id}`,
+      })
+      .onConflictDoNothing()
+      .returning({ id: coinTransaction.id })
+    if (res.length > 0) coinsAwarded = COINS_PER_MEAL_PLAN
+  }
+
   revalidatePath("/dashboard/meal-plan")
+  revalidatePath("/dashboard")
+  return { coinsAwarded }
 }
 
 export async function getMealPlans(): Promise<SavedMealPlan[]> {
