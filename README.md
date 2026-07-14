@@ -35,6 +35,8 @@ Restaurant revenue and growth options built into the UI:
 - Growth campaigns with UTM links, share prompts, and merchant outreach templates
 - Merchant package pricing for featured zip placements, coupons, and local sponsorships
 - Merchant dashboard route for campaign drafts and paid-placement pilots
+- Public `/merchants` lead-capture page for restaurants and local businesses
+- SEO pages: `/deals/[zip]`, `/restaurants-under-50/[zip]`, `/date-night-deals/[zip]`
 
 The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, or menu APIs when approved partner access is available. Growth links use UTM parameters so future analytics can attribute referrals, social campaigns, and merchant outreach. Merchant package payments can be added later with Stripe or handled manually for early pilots.
 
