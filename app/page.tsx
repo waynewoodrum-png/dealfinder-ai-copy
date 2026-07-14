@@ -9,6 +9,7 @@ import { RetailMedia } from "@/components/landing/retail-media"
 import { RestaurantDealFinder } from "@/components/landing/restaurant-deal-finder"
 import { TruePriceDealFinder } from "@/components/landing/true-price-deal-finder"
 import { DateNightDealFinder } from "@/components/landing/date-night-deal-finder"
+import { CloseoutDeals } from "@/components/landing/closeout-deals"
 import { UniversalDealSearch } from "@/components/landing/universal-deal-search"
 import { GrowthEngine } from "@/components/landing/growth-engine"
 import { MerchantRevenue } from "@/components/landing/merchant-revenue"
@@ -26,6 +27,7 @@ export default async function HomePage() {
         <RestaurantDealFinder />
         <TruePriceDealFinder />
         <DateNightDealFinder />
+        <CloseoutDeals />
         <UniversalDealSearch />
         <RetailMedia />
         <GrowthEngine />

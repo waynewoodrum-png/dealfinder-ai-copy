@@ -44,8 +44,9 @@ Restaurant revenue and growth options built into the UI:
 - Universal deal-source aggregator for major grocers, retailers, apparel, electronics, delivery, and home-improvement stores
 - Multi-buy and BOGO-style offer positioning across sources like Walmart, Publix, Kroger, Target, Best Buy, Nike, Home Depot, Lowe's, DoorDash, and Uber Eats
 - Integration-ready connector metadata for official APIs, affiliate feeds, manual weekly-ad feeds, and fallback search links
+- Closeout finder for food markdowns, grocery closeouts, open-box electronics, apparel clearance, home overstock, and seasonal last-chance deals
 
-The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, menu, grocery, recipe, loyalty-deal, retailer price, multi-buy promotion, and notification APIs when approved partner access is available. Growth links use UTM parameters so future analytics can attribute referrals, social campaigns, and merchant outreach. Merchant package payments can be added later with Stripe or handled manually for early pilots.
+The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, menu, grocery, recipe, loyalty-deal, retailer price, closeout/clearance feed, multi-buy promotion, and notification APIs when approved partner access is available. Growth links use UTM parameters so future analytics can attribute referrals, social campaigns, and merchant outreach. Merchant package payments can be added later with Stripe or handled manually for early pilots.
 
 ## Getting Started
 
