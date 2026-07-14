@@ -3,6 +3,7 @@ import { normalizeZipCode } from "@/lib/restaurant-deals"
 export type DateNightBundle = {
   title: string
   zipCodes: string[]
+  restaurantName: string
   dinner: string
   activity: string
   dessert: string
@@ -21,6 +22,7 @@ export const dateNightBundles: DateNightBundle[] = [
   {
     title: "Downtown Dinner + Indie Movie",
     zipCodes: ["27601", "27603", "27605"],
+    restaurantName: "Taco Street Grill",
     dinner: "Taco Street Grill combo for two",
     activity: "Two matinee indie movie tickets",
     dessert: "Shared churro sundae",
@@ -32,6 +34,7 @@ export const dateNightBundles: DateNightBundle[] = [
   {
     title: "Pizza Picnic + Live Music",
     zipCodes: ["27610", "27601", "27545"],
+    restaurantName: "Garden Pizza Co.",
     dinner: "Garden Pizza Co. large pizza bundle",
     activity: "Free outdoor music night",
     dessert: "Two gelato cups",
@@ -43,6 +46,7 @@ export const dateNightBundles: DateNightBundle[] = [
   {
     title: "Noodles + Arcade Challenge",
     zipCodes: ["27604", "27608", "27609"],
+    restaurantName: "Noodle House Express",
     dinner: "Two noodle bowls and shared appetizer",
     activity: "$20 arcade card bundle",
     dessert: "Boba tea two-pack",
@@ -54,6 +58,7 @@ export const dateNightBundles: DateNightBundle[] = [
   {
     title: "BBQ Plate + Coffee Walk",
     zipCodes: ["27603", "27529", "27539"],
+    restaurantName: "Smokehouse Plate",
     dinner: "Shared smokehouse platter",
     activity: "Self-guided mural walk",
     dessert: "Two specialty coffees",

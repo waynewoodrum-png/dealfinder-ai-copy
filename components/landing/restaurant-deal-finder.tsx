@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react"
 import { DollarSign, ExternalLink, LocateFixed, MapPin, Search, Sparkles, Utensils } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { buildDeliveryLinks } from "@/lib/delivery-links"
 import { buildRestaurantSearchUrl, findRestaurantDeals, normalizeZipCode } from "@/lib/restaurant-deals"
 
 const cuisines = ["Any", "American", "Asian", "BBQ", "Mexican", "Pizza"]
@@ -22,6 +23,7 @@ export function RestaurantDealFinder() {
     [numericBudget, cuisine, numericPartySize, normalizedZip],
   )
   const wrapperBase = process.env.NEXT_PUBLIC_RESTAURANT_LINK_WRAPPER_BASE ?? ""
+  const deliveryWrapperBase = process.env.NEXT_PUBLIC_DELIVERY_LINK_WRAPPER_BASE ?? ""
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -115,6 +117,7 @@ export function RestaurantDealFinder() {
             {hasSearched &&
               results.map((restaurant, index) => {
                 const href = buildRestaurantSearchUrl(restaurant.name, normalizedZip, wrapperBase)
+                const deliveryLinks = buildDeliveryLinks(restaurant.name, normalizedZip, deliveryWrapperBase)
 
                 return (
                   <article key={restaurant.name} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -150,16 +153,31 @@ export function RestaurantDealFinder() {
                     <p className="mt-2 text-sm text-foreground">
                       <span className="font-medium">Best order:</span> {restaurant.bestOrder}
                     </p>
-                    <Button
-                      className="mt-4 w-full"
-                      variant="outline"
-                      render={
-                        <a href={href} target="_blank" rel="noopener noreferrer sponsored">
-                          Search menu deals in {normalizedZip || "this area"}
-                          <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                        </a>
-                      }
-                    />
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        render={
+                          <a href={href} target="_blank" rel="noopener noreferrer sponsored">
+                            Search menu deals
+                            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                          </a>
+                        }
+                      />
+                      {deliveryLinks.map((delivery) => (
+                        <Button
+                          key={delivery.service}
+                          className="w-full"
+                          variant="outline"
+                          render={
+                            <a href={delivery.href} target="_blank" rel="noopener noreferrer sponsored">
+                              {delivery.service}
+                              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                            </a>
+                          }
+                        />
+                      ))}
+                    </div>
                   </article>
                 )
               })}
@@ -170,8 +188,8 @@ export function RestaurantDealFinder() {
                 Revenue path
               </p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Restaurants can pay for zip-targeted featured slots, reservation clicks, coupon redemptions, or local deal
-                campaigns. Replace sample data with a live menu, reservation, or deals API when partner access is approved.
+                Restaurants and delivery campaigns can pay for zip-targeted featured slots, reservation clicks, delivery
+                clicks, coupon redemptions, or local deal campaigns. Replace sample data with live menu, delivery, or deals APIs when partner access is approved.
               </p>
             </div>
           </div>

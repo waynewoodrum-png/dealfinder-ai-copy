@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState } from "react"
 import { CalendarHeart, DollarSign, ExternalLink, LocateFixed, Search, Sparkles, Utensils } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { buildDateNightSearchUrl, findDateNightBundles } from "@/lib/date-night-deals"
+import { buildDeliveryLinks } from "@/lib/delivery-links"
 import { normalizeZipCode } from "@/lib/restaurant-deals"
 
 const vibes = ["Any", "Casual", "Relaxed", "Playful", "Low-key"]
@@ -17,6 +18,7 @@ export function DateNightDealFinder() {
   const normalizedZip = normalizeZipCode(zipCode)
   const numericBudget = Math.max(0, Number(budget) || 0)
   const wrapperBase = process.env.NEXT_PUBLIC_DATE_NIGHT_LINK_WRAPPER_BASE ?? ""
+  const deliveryWrapperBase = process.env.NEXT_PUBLIC_DELIVERY_LINK_WRAPPER_BASE ?? ""
   const bundles = useMemo(
     () => findDateNightBundles(numericBudget, normalizedZip, vibe).slice(0, 3),
     [numericBudget, normalizedZip, vibe],
@@ -104,6 +106,7 @@ export function DateNightDealFinder() {
             {hasSearched &&
               bundles.map((bundle, index) => {
                 const href = buildDateNightSearchUrl(bundle.title, normalizedZip, wrapperBase)
+                const deliveryLinks = buildDeliveryLinks(bundle.restaurantName, normalizedZip, deliveryWrapperBase)
 
                 return (
                   <article key={bundle.title} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -143,16 +146,31 @@ export function DateNightDealFinder() {
                       </p>
                       <p className="rounded-xl bg-muted p-3">{bundle.dessert}</p>
                     </div>
-                    <Button
-                      className="mt-4 w-full"
-                      variant="outline"
-                      render={
-                        <a href={href} target="_blank" rel="noopener noreferrer sponsored">
-                          Search this bundle near {normalizedZip || "this area"}
-                          <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                        </a>
-                      }
-                    />
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        render={
+                          <a href={href} target="_blank" rel="noopener noreferrer sponsored">
+                            Search this bundle
+                            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                          </a>
+                        }
+                      />
+                      {deliveryLinks.slice(0, 2).map((delivery) => (
+                        <Button
+                          key={delivery.service}
+                          className="w-full"
+                          variant="outline"
+                          render={
+                            <a href={delivery.href} target="_blank" rel="noopener noreferrer sponsored">
+                              Deliver with {delivery.service}
+                              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                            </a>
+                          }
+                        />
+                      ))}
+                    </div>
                   </article>
                 )
               })}
@@ -161,7 +179,7 @@ export function DateNightDealFinder() {
               <p className="text-sm font-medium text-foreground">Premium monetization layer</p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Bundle campaigns can sell higher-value placement than one-off restaurant clicks: dinner + event + dessert
-                packages, sponsored local collections, and pay-per-redemption date-night coupons.
+                packages, delivery clicks, sponsored local collections, and pay-per-redemption date-night coupons.
               </p>
             </div>
           </div>

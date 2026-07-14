@@ -17,18 +17,20 @@ Retail storefront links are scaffolded for affiliate or sponsored placements. Ad
 - `AFFILIATE_COMMISSION_RATE` — optional estimated commission rate for projections
 - `NEXT_PUBLIC_RESTAURANT_LINK_WRAPPER_BASE` — optional reservation, coupon, or restaurant affiliate link-wrapper prefix
 - `NEXT_PUBLIC_DATE_NIGHT_LINK_WRAPPER_BASE` — optional date-night bundle, event, or local coupon link-wrapper prefix
+- `NEXT_PUBLIC_DELIVERY_LINK_WRAPPER_BASE` — optional delivery-service, ordering, or local delivery campaign link-wrapper prefix
 - `AI_GATEWAY_API_KEY` — required for live AI helper responses
 - `AI_HELPER_MODEL` — optional model override, defaults to `openai/gpt-5-mini`
 
 Restaurant revenue options built into the UI:
 
 - Sponsored restaurant slots for local businesses
-- Reservation or ordering affiliate links
+- Reservation, ordering, or delivery click links
+- DoorDash, Uber Eats, and local delivery search actions
 - Coupon redemption tracking
 - Zip-targeted “eat under $50” budget deals
 - Premium date-night bundles with restaurant, venue, and dessert placements
 
-The current implementation uses sample restaurant inventory and search links that include the user's zip code. Connect a live restaurant, reservation, coupon, or menu API when approved partner access is available.
+The current implementation uses sample restaurant inventory and search links that include the user's zip code. Delivery links search DoorDash, Uber Eats, and local delivery options; connect official delivery, reservation, coupon, or menu APIs when approved partner access is available.
 
 ## Getting Started
 
