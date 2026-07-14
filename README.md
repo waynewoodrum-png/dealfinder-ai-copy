@@ -19,6 +19,7 @@ Retail storefront links are scaffolded for affiliate or sponsored placements. Ad
 - `NEXT_PUBLIC_DATE_NIGHT_LINK_WRAPPER_BASE` — optional date-night bundle, event, or local coupon link-wrapper prefix
 - `NEXT_PUBLIC_DELIVERY_LINK_WRAPPER_BASE` — optional delivery-service, ordering, or local delivery campaign link-wrapper prefix
 - `NEXT_PUBLIC_COUPON_LINK_WRAPPER_BASE` — optional coupon redemption or click-tracking link-wrapper prefix
+- Retailer/feed placeholders: `WALMART_AFFILIATE_ID`, `WALMART_FEED_URL`, `KROGER_CLIENT_ID`, `KROGER_CLIENT_SECRET`, `BESTBUY_API_KEY`, `TARGET_AFFILIATE_ID`, `TARGET_FEED_URL`, `PUBLIX_WEEKLY_AD_FEED_URL`, `DOORDASH_PARTNER_ID`, `UBEREATS_PARTNER_ID`
 - `AI_GATEWAY_API_KEY` — required for live AI helper responses
 - `AI_HELPER_MODEL` — optional model override, defaults to `openai/gpt-5-mini`
 
@@ -42,6 +43,7 @@ Restaurant revenue and growth options built into the UI:
 - Deal watchlist for target prices, rollback-style drops, and upcoming sale-day reminders
 - Universal deal-source aggregator for major grocers, retailers, apparel, electronics, delivery, and home-improvement stores
 - Multi-buy and BOGO-style offer positioning across sources like Walmart, Publix, Kroger, Target, Best Buy, Nike, Home Depot, Lowe's, DoorDash, and Uber Eats
+- Integration-ready connector metadata for official APIs, affiliate feeds, manual weekly-ad feeds, and fallback search links
 
 The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, menu, grocery, recipe, loyalty-deal, retailer price, multi-buy promotion, and notification APIs when approved partner access is available. Growth links use UTM parameters so future analytics can attribute referrals, social campaigns, and merchant outreach. Merchant package payments can be added later with Stripe or handled manually for early pilots.
 

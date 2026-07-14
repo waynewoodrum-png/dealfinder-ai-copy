@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { ExternalLink, Layers3, Search, ShoppingBasket } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { connectorFor, connectorStatusLabel } from "@/lib/deal-connectors"
 import {
   buildUniversalSearchUrl,
   sampleUniversalResults,
@@ -71,32 +72,45 @@ export function UniversalDealSearch() {
 
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              {sources.map((source) => (
-                <article key={source.name} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-foreground">{source.name}</h3>
-                      <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{source.category}</p>
+              {sources.map((source) => {
+                const connector = connectorFor(source)
+
+                return (
+                  <article key={source.name} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold text-foreground">{source.name}</h3>
+                        <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{source.category}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        {source.supportsMultiBuy && (
+                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                            Multi-buy
+                          </span>
+                        )}
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                          {connectorStatusLabel(connector.status)}
+                        </span>
+                      </div>
                     </div>
-                    {source.supportsMultiBuy && (
-                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                        Multi-buy
-                      </span>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{source.notes}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{connector.useCase}</p>
+                    {connector.envKeys.length > 0 && (
+                      <p className="mt-2 text-xs text-muted-foreground">Needs: {connector.envKeys.join(", ")}</p>
                     )}
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{source.notes}</p>
-                  <Button
-                    className="mt-4 w-full"
-                    variant="outline"
-                    render={
-                      <a href={buildUniversalSearchUrl(source, query)} target="_blank" rel="noopener noreferrer sponsored">
-                        Search {source.name}
-                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                      </a>
-                    }
-                  />
-                </article>
-              ))}
+                    <Button
+                      className="mt-4 w-full"
+                      variant="outline"
+                      render={
+                        <a href={buildUniversalSearchUrl(source, query)} target="_blank" rel="noopener noreferrer sponsored">
+                          Search {source.name}
+                          <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                        </a>
+                      }
+                    />
+                  </article>
+                )
+              })}
             </div>
 
             <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-5">
