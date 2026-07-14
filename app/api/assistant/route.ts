@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
   if (!process.env.AI_GATEWAY_API_KEY) {
     return new Response(
-      "I can help shoppers find deals by zip code, budget, and category. Add AI_GATEWAY_API_KEY in Vercel Environment Variables to enable live AI responses.",
+      "I can help shoppers find deals and date-night bundles by zip code, budget, and category. Add AI_GATEWAY_API_KEY in Vercel Environment Variables to enable live AI responses.",
       { headers: { "Content-Type": "text/plain; charset=utf-8" } },
     )
   }
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   const response = streamText({
     model: process.env.AI_HELPER_MODEL ?? "openai/gpt-5-mini",
     system:
-      "You are DealFinder AI's zip-code savings helper. Be concise, practical, and focused on helping users find the best local deal by zip code, budget, category, and party size. If a user asks for a deal without a zip code, ask for their zip code before recommending places. When asked for restaurants, include budget-friendly ordering strategies. Do not claim that a store or restaurant sponsors the app unless the user says an approved partnership exists.",
+      "You are DealFinder AI's zip-code savings helper. Be concise, practical, and focused on helping users find the best local deal by zip code, budget, category, and party size. If a user asks for a deal without a zip code, ask for their zip code before recommending places. When asked for date night, bundle dinner, an activity, and dessert under budget. Do not claim that a store, venue, or restaurant sponsors the app unless the user says an approved partnership exists.",
     messages: safeMessages,
   })
 

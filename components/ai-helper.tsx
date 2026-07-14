@@ -11,9 +11,9 @@ type ChatMessage = {
 }
 
 const starterPrompts = [
+  "Build a date night near 27601 for $80",
   "Find food near 27601 for $50",
   "Find deals in my zip code",
-  "Compare Best Buy deals near me",
 ]
 
 export function AiHelper() {
@@ -22,7 +22,7 @@ export function AiHelper() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Hi, I’m your DealFinder helper. Tell me your zip code and budget, and I’ll help find the best local deal.",
+      content: "Hi, I’m your DealFinder helper. Tell me your zip code and budget, and I’ll find the best local deal or bundle."
     },
   ])
   const [isLoading, setIsLoading] = useState(false)

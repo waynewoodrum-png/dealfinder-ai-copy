@@ -7,6 +7,7 @@ import { HowItWorks } from "@/components/landing/how-it-works"
 import { Features } from "@/components/landing/features"
 import { RetailMedia } from "@/components/landing/retail-media"
 import { RestaurantDealFinder } from "@/components/landing/restaurant-deal-finder"
+import { DateNightDealFinder } from "@/components/landing/date-night-deal-finder"
 import { ProofCta } from "@/components/landing/proof-cta"
 
 export default async function HomePage() {
@@ -19,6 +20,7 @@ export default async function HomePage() {
         <Hero />
         <HowItWorks />
         <RestaurantDealFinder />
+        <DateNightDealFinder />
         <RetailMedia />
         <Features />
         <ProofCta />
