@@ -29,6 +29,7 @@ Restaurant revenue options built into the UI:
 - DoorDash, Uber Eats, and local delivery search actions
 - Coupon cards with codes, expiration dates, copy-code actions, and redemption links
 - Coupon redemption tracking hooks
+- True-price comparisons after coupons, estimated tax, delivery fees, service fees, and tip
 - Zip-targeted “eat under $50” budget deals
 - Premium date-night bundles with restaurant, venue, and dessert placements
 
