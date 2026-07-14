@@ -39,8 +39,9 @@ Restaurant revenue and growth options built into the UI:
 - SEO pages: `/deals/[zip]`, `/restaurants-under-50/[zip]`, `/date-night-deals/[zip]`
 - Recipe discovery with budget, diet, cuisine, prep-time, and grocery source positioning
 - Future grocery search integrations for retailer pricing, loyalty deals, recipe search, and multi-store grocery discovery
+- Deal watchlist for target prices, rollback-style drops, and upcoming sale-day reminders
 
-The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, menu, grocery, recipe, and loyalty-deal APIs when approved partner access is available. Growth links use UTM parameters so future analytics can attribute referrals, social campaigns, and merchant outreach. Merchant package payments can be added later with Stripe or handled manually for early pilots.
+The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, menu, grocery, recipe, loyalty-deal, retailer price, and notification APIs when approved partner access is available. Growth links use UTM parameters so future analytics can attribute referrals, social campaigns, and merchant outreach. Merchant package payments can be added later with Stripe or handled manually for early pilots.
 
 ## Getting Started
 
