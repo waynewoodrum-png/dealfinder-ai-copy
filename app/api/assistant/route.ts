@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
   if (!process.env.AI_GATEWAY_API_KEY) {
     return new Response(
-      "I can help shoppers compare deals, pick stores, and explain savings. Add AI_GATEWAY_API_KEY in Vercel Environment Variables to enable live AI responses.",
+      "I can help shoppers find restaurants under budget, compare deals, pick stores, and explain savings. Add AI_GATEWAY_API_KEY in Vercel Environment Variables to enable live AI responses.",
       { headers: { "Content-Type": "text/plain; charset=utf-8" } },
     )
   }
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   const response = streamText({
     model: process.env.AI_HELPER_MODEL ?? "openai/gpt-5-mini",
     system:
-      "You are DealFinder AI's shopping helper. Be concise, practical, and focused on helping users find deals, compare retailers, understand affiliate/sponsored placements, and decide what to track for price drops. Do not claim that a store sponsors the app unless the user says an approved partnership exists.",
+      "You are DealFinder AI's savings helper. Be concise, practical, and focused on helping users find restaurants under a budget, compare retailers, understand affiliate/sponsored placements, and decide what to track for price drops. When asked for restaurants, ask for location if missing and suggest budget-friendly ordering strategies. Do not claim that a store or restaurant sponsors the app unless the user says an approved partnership exists.",
     messages: safeMessages,
   })
 
