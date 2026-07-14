@@ -2,7 +2,9 @@
 
 import { FormEvent, useMemo, useState } from "react"
 import { CalendarHeart, DollarSign, ExternalLink, LocateFixed, Search, Sparkles, Utensils } from "lucide-react"
+import { CouponCard } from "@/components/coupon-card"
 import { Button } from "@/components/ui/button"
+import { buildCouponRedeemUrl, findCoupons } from "@/lib/coupons"
 import { buildDateNightSearchUrl, findDateNightBundles } from "@/lib/date-night-deals"
 import { buildDeliveryLinks } from "@/lib/delivery-links"
 import { normalizeZipCode } from "@/lib/restaurant-deals"
@@ -19,6 +21,7 @@ export function DateNightDealFinder() {
   const numericBudget = Math.max(0, Number(budget) || 0)
   const wrapperBase = process.env.NEXT_PUBLIC_DATE_NIGHT_LINK_WRAPPER_BASE ?? ""
   const deliveryWrapperBase = process.env.NEXT_PUBLIC_DELIVERY_LINK_WRAPPER_BASE ?? ""
+  const couponWrapperBase = process.env.NEXT_PUBLIC_COUPON_LINK_WRAPPER_BASE ?? ""
   const bundles = useMemo(
     () => findDateNightBundles(numericBudget, normalizedZip, vibe).slice(0, 3),
     [numericBudget, normalizedZip, vibe],
@@ -107,6 +110,7 @@ export function DateNightDealFinder() {
               bundles.map((bundle, index) => {
                 const href = buildDateNightSearchUrl(bundle.title, normalizedZip, wrapperBase)
                 const deliveryLinks = buildDeliveryLinks(bundle.restaurantName, normalizedZip, deliveryWrapperBase)
+                const coupons = findCoupons(bundle.restaurantName, normalizedZip)
 
                 return (
                   <article key={bundle.title} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -146,6 +150,17 @@ export function DateNightDealFinder() {
                       </p>
                       <p className="rounded-xl bg-muted p-3">{bundle.dessert}</p>
                     </div>
+                    {coupons.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        {coupons.slice(0, 2).map((coupon) => (
+                          <CouponCard
+                            key={coupon.id}
+                            coupon={coupon}
+                            redeemHref={buildCouponRedeemUrl(coupon, normalizedZip, couponWrapperBase)}
+                          />
+                        ))}
+                      </div>
+                    )}
                     <div className="mt-4 grid gap-2 sm:grid-cols-2">
                       <Button
                         className="w-full"

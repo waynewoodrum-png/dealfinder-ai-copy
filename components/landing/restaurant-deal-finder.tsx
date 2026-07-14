@@ -2,7 +2,9 @@
 
 import { FormEvent, useMemo, useState } from "react"
 import { DollarSign, ExternalLink, LocateFixed, MapPin, Search, Sparkles, Utensils } from "lucide-react"
+import { CouponCard } from "@/components/coupon-card"
 import { Button } from "@/components/ui/button"
+import { buildCouponRedeemUrl, findCoupons } from "@/lib/coupons"
 import { buildDeliveryLinks } from "@/lib/delivery-links"
 import { buildRestaurantSearchUrl, findRestaurantDeals, normalizeZipCode } from "@/lib/restaurant-deals"
 
@@ -24,6 +26,7 @@ export function RestaurantDealFinder() {
   )
   const wrapperBase = process.env.NEXT_PUBLIC_RESTAURANT_LINK_WRAPPER_BASE ?? ""
   const deliveryWrapperBase = process.env.NEXT_PUBLIC_DELIVERY_LINK_WRAPPER_BASE ?? ""
+  const couponWrapperBase = process.env.NEXT_PUBLIC_COUPON_LINK_WRAPPER_BASE ?? ""
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -118,6 +121,7 @@ export function RestaurantDealFinder() {
               results.map((restaurant, index) => {
                 const href = buildRestaurantSearchUrl(restaurant.name, normalizedZip, wrapperBase)
                 const deliveryLinks = buildDeliveryLinks(restaurant.name, normalizedZip, deliveryWrapperBase)
+                const coupons = findCoupons(restaurant.name, normalizedZip)
 
                 return (
                   <article key={restaurant.name} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -153,6 +157,17 @@ export function RestaurantDealFinder() {
                     <p className="mt-2 text-sm text-foreground">
                       <span className="font-medium">Best order:</span> {restaurant.bestOrder}
                     </p>
+                    {coupons.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        {coupons.slice(0, 2).map((coupon) => (
+                          <CouponCard
+                            key={coupon.id}
+                            coupon={coupon}
+                            redeemHref={buildCouponRedeemUrl(coupon, normalizedZip, couponWrapperBase)}
+                          />
+                        ))}
+                      </div>
+                    )}
                     <div className="mt-4 grid gap-2 sm:grid-cols-2">
                       <Button
                         className="w-full"
