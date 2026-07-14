@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { redeemCoins, type CoinSummary } from "@/app/actions/coins"
-import { REDEEM_TIERS, COINS_PER_DOLLAR, formatCoins } from "@/lib/coins"
+import { REDEEM_TIERS, COINS_PER_DOLLAR, MIN_REDEEM_DOLLARS, formatCoins } from "@/lib/coins"
 
 function money(value: number) {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 })
@@ -55,8 +55,8 @@ export function RewardsPanel({ summary }: { summary: CoinSummary }) {
             <span className="pb-2 text-lg text-muted-foreground">coins</span>
           </div>
           <p className="text-sm text-muted-foreground text-pretty">
-            Worth <span className="font-semibold text-foreground">{money(summary.balance / COINS_PER_DOLLAR)}</span>{" "}
-            toward your next purchase. {COINS_PER_DOLLAR} coins = $1.
+            Worth up to <span className="font-semibold text-foreground">{money(summary.balance / COINS_PER_DOLLAR)}</span>{" "}
+            in DealFinder discount credit. {COINS_PER_DOLLAR} coins = $1.
           </p>
           <div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
@@ -66,7 +66,7 @@ export function RewardsPanel({ summary }: { summary: CoinSummary }) {
               />
             </div>
             <p className="mt-1.5 text-xs text-muted-foreground">
-              {COINS_PER_DOLLAR - (summary.balance % COINS_PER_DOLLAR)} more coins to your next $1
+              {COINS_PER_DOLLAR - (summary.balance % COINS_PER_DOLLAR)} more coins to your next $1 credit
             </p>
           </div>
         </div>
@@ -108,7 +108,7 @@ export function RewardsPanel({ summary }: { summary: CoinSummary }) {
           <h2 className="text-lg font-semibold text-foreground">Redeem your coins</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground text-pretty">
-          Convert coins into a discount credit for your next purchase.
+          Convert coins into DealFinder discount credit once you reach the $5 minimum, or use streaks to unlock better coupons.
         </p>
 
         {message && (
@@ -162,7 +162,7 @@ export function RewardsPanel({ summary }: { summary: CoinSummary }) {
                 id="custom-redeem"
                 type="number"
                 inputMode="numeric"
-                min={1}
+                min={MIN_REDEEM_DOLLARS}
                 max={maxDollars || undefined}
                 value={custom}
                 onChange={(e) => setCustom(e.target.value)}
@@ -172,7 +172,7 @@ export function RewardsPanel({ summary }: { summary: CoinSummary }) {
             </div>
             <Button
               className="h-11"
-              disabled={pending || !custom || Number(custom) < 1}
+              disabled={pending || !custom || Number(custom) < MIN_REDEEM_DOLLARS}
               onClick={() => doRedeem(Number(custom))}
             >
               Redeem
@@ -181,7 +181,7 @@ export function RewardsPanel({ summary }: { summary: CoinSummary }) {
           <p className="mt-1.5 text-xs text-muted-foreground">
             {maxDollars > 0
               ? `You can redeem up to ${money(maxDollars)} right now.`
-              : "Earn more coins by keeping your savings streak alive."}
+              : "Earn more coins by keeping your savings streak alive and checking in daily."}
           </p>
         </div>
       </Card>
@@ -195,16 +195,24 @@ export function RewardsPanel({ summary }: { summary: CoinSummary }) {
         <ul className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
           <li className="flex items-start gap-2">
             <span className="mt-0.5 text-primary">•</span>
-            Claim at least one deal in a week to earn <strong className="text-foreground">10 coins</strong> for that
-            week.
+            Claim at least one deal in a week to earn <strong className="text-foreground">10 coins</strong> and keep
+            your savings streak alive.
           </li>
           <li className="flex items-start gap-2">
             <span className="mt-0.5 text-primary">•</span>
             Keep your streak going for milestone bonuses:{" "}
-            <strong className="text-foreground">2 weeks (+20)</strong>,{" "}
-            <strong className="text-foreground">4 weeks (+50)</strong>,{" "}
-            <strong className="text-foreground">8 weeks (+120)</strong>, and{" "}
-            <strong className="text-foreground">12 weeks (+200)</strong>.
+            <strong className="text-foreground">2 weeks (+25)</strong>,{" "}
+            <strong className="text-foreground">4 weeks (+75)</strong>,{" "}
+            <strong className="text-foreground">8 weeks (+150)</strong>, and{" "}
+            <strong className="text-foreground">12 weeks (+300)</strong>.
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="mt-0.5 text-primary">•</span>
+            Check in daily for <strong className="text-foreground">1 coin</strong> and to unlock secret coupon drops.
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="mt-0.5 text-primary">•</span>
+            Refer friends or share zip-code deal links to qualify for future sponsored giveaways.
           </li>
         </ul>
       </Card>
