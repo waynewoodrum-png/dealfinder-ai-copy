@@ -11,9 +11,9 @@ type ChatMessage = {
 }
 
 const starterPrompts = [
-  "Find a restaurant for $50",
-  "Find me deals at Walmart",
-  "Compare Best Buy electronics deals",
+  "Find food near 27601 for $50",
+  "Find deals in my zip code",
+  "Compare Best Buy deals near me",
 ]
 
 export function AiHelper() {
@@ -22,7 +22,7 @@ export function AiHelper() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Hi, I’m your DealFinder helper. Ask me where to eat under budget, what to buy, or which deals to track.",
+      content: "Hi, I’m your DealFinder helper. Tell me your zip code and budget, and I’ll help find the best local deal.",
     },
   ])
   const [isLoading, setIsLoading] = useState(false)
@@ -90,7 +90,7 @@ export function AiHelper() {
               </span>
               <div>
                 <p className="text-sm font-semibold text-foreground">DealFinder AI helper</p>
-                <p className="text-xs text-muted-foreground">Shopping and savings assistant</p>
+                <p className="text-xs text-muted-foreground">Zip-code savings assistant</p>
               </div>
             </div>
             <Button
@@ -145,7 +145,7 @@ export function AiHelper() {
               <input
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask about deals..."
+                placeholder="Ask with zip + budget..."
                 className="min-h-10 flex-1 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
               <Button type="submit" size="icon-lg" aria-label="Send message" disabled={!canSend}>

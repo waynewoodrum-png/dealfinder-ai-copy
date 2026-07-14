@@ -1,23 +1,25 @@
 "use client"
 
 import { FormEvent, useMemo, useState } from "react"
-import { DollarSign, ExternalLink, MapPin, Search, Sparkles, Utensils } from "lucide-react"
+import { DollarSign, ExternalLink, LocateFixed, MapPin, Search, Sparkles, Utensils } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { buildRestaurantSearchUrl, findRestaurantDeals } from "@/lib/restaurant-deals"
+import { buildRestaurantSearchUrl, findRestaurantDeals, normalizeZipCode } from "@/lib/restaurant-deals"
 
 const cuisines = ["Any", "American", "Asian", "BBQ", "Mexican", "Pizza"]
 
 export function RestaurantDealFinder() {
   const [budget, setBudget] = useState("50")
   const [partySize, setPartySize] = useState("2")
+  const [zipCode, setZipCode] = useState("27601")
   const [cuisine, setCuisine] = useState("Any")
   const [hasSearched, setHasSearched] = useState(true)
 
   const numericBudget = Math.max(0, Number(budget) || 0)
   const numericPartySize = Math.max(1, Number(partySize) || 1)
+  const normalizedZip = normalizeZipCode(zipCode)
   const results = useMemo(
-    () => findRestaurantDeals(numericBudget, cuisine, numericPartySize).slice(0, 3),
-    [numericBudget, cuisine, numericPartySize],
+    () => findRestaurantDeals(numericBudget, cuisine, numericPartySize, normalizedZip).slice(0, 3),
+    [numericBudget, cuisine, numericPartySize, normalizedZip],
   )
   const wrapperBase = process.env.NEXT_PUBLIC_RESTAURANT_LINK_WRAPPER_BASE ?? ""
 
@@ -33,18 +35,32 @@ export function RestaurantDealFinder() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               <Utensils className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-              Restaurant deal finder
+              Zip-code deal finder
             </span>
             <h2 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Find a place to eat within your budget
+              Find the best local place to eat within your budget
             </h2>
             <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
-              Example: “Find me a restaurant where two people can eat for $50.” DealFinder ranks budget-fit options,
-              reserves featured placement inventory, and sends diners to menu or reservation links.
+              Example: “Find me a restaurant near 27601 where two people can eat for $50.” DealFinder ranks budget-fit
+              options by zip code, budget room, and featured placement inventory.
             </p>
 
             <form onSubmit={onSubmit} className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <label className="text-sm font-medium text-foreground">
+                  Zip code
+                  <span className="mt-2 flex min-h-11 items-center gap-2 rounded-lg border border-border bg-background px-3">
+                    <LocateFixed className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <input
+                      value={zipCode}
+                      onChange={(event) => setZipCode(event.target.value)}
+                      inputMode="numeric"
+                      maxLength={5}
+                      className="w-full bg-transparent text-sm outline-none"
+                      aria-label="Zip code"
+                    />
+                  </span>
+                </label>
                 <label className="text-sm font-medium text-foreground">
                   Budget
                   <span className="mt-2 flex min-h-11 items-center gap-2 rounded-lg border border-border bg-background px-3">
@@ -84,7 +100,7 @@ export function RestaurantDealFinder() {
               </div>
               <Button className="mt-5 min-h-11 w-full" type="submit">
                 <Search className="h-4 w-4" aria-hidden="true" />
-                Find restaurants under ${numericBudget || 0}
+                Find best deals near {normalizedZip || "my zip"} under ${numericBudget || 0}
               </Button>
             </form>
           </div>
@@ -92,33 +108,43 @@ export function RestaurantDealFinder() {
           <div className="space-y-4">
             {hasSearched && results.length === 0 && (
               <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
-                No budget-fit matches yet. Try a higher budget or “Any” cuisine.
+                No budget-fit matches in this sample yet. Try a higher budget, “Any” cuisine, or another zip code.
               </div>
             )}
 
             {hasSearched &&
-              results.map((restaurant) => {
-                const estimatedForParty = Math.round((restaurant.priceForTwo / 2) * numericPartySize)
-                const href = buildRestaurantSearchUrl(restaurant.name, wrapperBase)
+              results.map((restaurant, index) => {
+                const href = buildRestaurantSearchUrl(restaurant.name, normalizedZip, wrapperBase)
 
                 return (
                   <article key={restaurant.name} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold text-foreground">{restaurant.name}</h3>
-                          {restaurant.sponsored && (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">
+                            #{index + 1} best match
+                          </span>
+                          {restaurant.localMatch && (
                             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                              Local zip match
+                            </span>
+                          )}
+                          {restaurant.featured && (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                               Featured slot
                             </span>
                           )}
                         </div>
+                        <h3 className="mt-3 text-lg font-semibold text-foreground">{restaurant.name}</h3>
                         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
                           <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                           {restaurant.neighborhood} · {restaurant.cuisine}
                         </p>
                       </div>
-                      <p className="font-mono text-xl font-semibold text-primary">${estimatedForParty}</p>
+                      <div className="text-right">
+                        <p className="font-mono text-xl font-semibold text-primary">${restaurant.estimatedForParty}</p>
+                        <p className="text-xs text-muted-foreground">estimated total</p>
+                      </div>
                     </div>
                     <p className="mt-4 text-sm text-muted-foreground">{restaurant.deal}</p>
                     <p className="mt-2 text-sm text-foreground">
@@ -129,7 +155,7 @@ export function RestaurantDealFinder() {
                       variant="outline"
                       render={
                         <a href={href} target="_blank" rel="noopener noreferrer sponsored">
-                          View menu deal
+                          Search menu deals in {normalizedZip || "this area"}
                           <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         </a>
                       }
@@ -144,8 +170,8 @@ export function RestaurantDealFinder() {
                 Revenue path
               </p>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Restaurants can pay for featured slots, reservation clicks, coupon redemptions, or local deal campaigns.
-                Use approved partner links before labeling any restaurant as sponsored or official.
+                Restaurants can pay for zip-targeted featured slots, reservation clicks, coupon redemptions, or local deal
+                campaigns. Replace sample data with a live menu, reservation, or deals API when partner access is approved.
               </p>
             </div>
           </div>

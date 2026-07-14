@@ -24,7 +24,9 @@ Restaurant revenue options built into the UI:
 - Sponsored restaurant slots for local businesses
 - Reservation or ordering affiliate links
 - Coupon redemption tracking
-- Featured “eat under $50” budget deals
+- Zip-targeted “eat under $50” budget deals
+
+The current implementation uses sample restaurant inventory and search links that include the user's zip code. Connect a live restaurant, reservation, coupon, or menu API when approved partner access is available.
 
 ## Getting Started
 
