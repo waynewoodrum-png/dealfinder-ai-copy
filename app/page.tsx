@@ -10,6 +10,7 @@ import { RestaurantDealFinder } from "@/components/landing/restaurant-deal-finde
 import { TruePriceDealFinder } from "@/components/landing/true-price-deal-finder"
 import { DateNightDealFinder } from "@/components/landing/date-night-deal-finder"
 import { GrowthEngine } from "@/components/landing/growth-engine"
+import { MerchantRevenue } from "@/components/landing/merchant-revenue"
 import { ProofCta } from "@/components/landing/proof-cta"
 
 export default async function HomePage() {
@@ -26,6 +27,7 @@ export default async function HomePage() {
         <DateNightDealFinder />
         <RetailMedia />
         <GrowthEngine />
+        <MerchantRevenue />
         <Features />
         <ProofCta />
       </main>
