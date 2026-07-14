@@ -22,7 +22,7 @@ Retail storefront links are scaffolded for affiliate or sponsored placements. Ad
 - `AI_GATEWAY_API_KEY` — required for live AI helper responses
 - `AI_HELPER_MODEL` — optional model override, defaults to `openai/gpt-5-mini`
 
-Restaurant revenue options built into the UI:
+Restaurant revenue and growth options built into the UI:
 
 - Sponsored restaurant slots for local businesses
 - Reservation, ordering, or delivery click links
@@ -32,8 +32,9 @@ Restaurant revenue options built into the UI:
 - Best-match deal scoring after coupon savings, without handling food orders
 - Zip-targeted “eat under $50” budget deals
 - Premium date-night bundles with restaurant, venue, and dessert placements
+- Growth campaigns with UTM links, share prompts, and merchant outreach templates
 
-The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, or menu APIs when approved partner access is available.
+The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, or menu APIs when approved partner access is available. Growth links use UTM parameters so future analytics can attribute referrals, social campaigns, and merchant outreach.
 
 ## Getting Started
 
