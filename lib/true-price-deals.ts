@@ -3,26 +3,18 @@ import { restaurantDeals, normalizeZipCode, type RestaurantDeal } from "@/lib/re
 
 export type FulfillmentMode = "pickup" | "delivery"
 
-export type TruePriceDeal = {
+export type BestDealMatch = {
   restaurant: RestaurantDeal
   mode: FulfillmentMode
-  subtotal: number
+  estimatedMenuTotal: number
   coupon?: Coupon
   couponSavings: number
-  tax: number
-  serviceFee: number
-  deliveryFee: number
-  tip: number
-  finalTotal: number
+  estimatedDealTotal: number
   budgetLeft: number
   localMatch: boolean
+  dealScore: number
   reason: string
 }
-
-const TAX_RATE = 0.075
-const DELIVERY_SERVICE_FEE_RATE = 0.12
-const DELIVERY_FEE = 4.99
-const TIP_RATE = 0.15
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100
@@ -48,42 +40,43 @@ function bestCouponFor(restaurantName: string, zipCode: string, subtotal: number
     .sort((a, b) => couponSavings(b, subtotal) - couponSavings(a, subtotal))[0]
 }
 
-function priceDeal(restaurant: RestaurantDeal, zipCode: string, partySize: number, mode: FulfillmentMode, budget: number): TruePriceDeal {
+function scoreDeal(restaurant: RestaurantDeal, zipCode: string, partySize: number, mode: FulfillmentMode, budget: number): BestDealMatch {
   const safePartySize = Math.max(1, partySize)
-  const subtotal = roundMoney((restaurant.priceForTwo / 2) * safePartySize)
-  const coupon = bestCouponFor(restaurant.name, zipCode, subtotal, mode)
-  const savings = couponSavings(coupon, subtotal)
-  const discountedSubtotal = Math.max(0, subtotal - savings)
-  const tax = roundMoney(discountedSubtotal * TAX_RATE)
-  const serviceFee = mode === "delivery" ? roundMoney(discountedSubtotal * DELIVERY_SERVICE_FEE_RATE) : 0
-  const deliveryFee = mode === "delivery" ? DELIVERY_FEE : 0
-  const tip = mode === "delivery" ? roundMoney(discountedSubtotal * TIP_RATE) : 0
-  const finalTotal = roundMoney(discountedSubtotal + tax + serviceFee + deliveryFee + tip)
+  const estimatedMenuTotal = roundMoney((restaurant.priceForTwo / 2) * safePartySize)
+  const coupon = bestCouponFor(restaurant.name, zipCode, estimatedMenuTotal, mode)
+  const savings = couponSavings(coupon, estimatedMenuTotal)
+  const estimatedDealTotal = roundMoney(Math.max(0, estimatedMenuTotal - savings))
   const normalizedZip = normalizeZipCode(zipCode)
   const localMatch = !!normalizedZip && restaurant.zipCodes.includes(normalizedZip)
+  const budgetLeft = roundMoney(budget - estimatedDealTotal)
 
   return {
     restaurant,
     mode,
-    subtotal,
+    estimatedMenuTotal,
     coupon,
     couponSavings: savings,
-    tax,
-    serviceFee,
-    deliveryFee,
-    tip,
-    finalTotal,
-    budgetLeft: roundMoney(budget - finalTotal),
+    estimatedDealTotal,
+    budgetLeft,
     localMatch,
-    reason: mode === "pickup" ? "Lowest fees: no delivery, service fee, or tip." : "Convenience option: includes estimated delivery fees and tip.",
+    dealScore: Math.max(0, budgetLeft) + savings + (localMatch ? 25 : 0) + (restaurant.featured ? 5 : 0),
+    reason:
+      mode === "pickup"
+        ? "Pickup keeps the order simple and sends users to the restaurant."
+        : "Delivery opens the provider so your app stays focused on referrals.",
   }
 }
 
-export function findTruePriceDeals(budget: number, zipCode: string, partySize: number, preferredMode: FulfillmentMode | "best"): TruePriceDeal[] {
+export function findBestDealMatches(
+  budget: number,
+  zipCode: string,
+  partySize: number,
+  preferredMode: FulfillmentMode | "best",
+): BestDealMatch[] {
   const modes: FulfillmentMode[] = preferredMode === "best" ? ["pickup", "delivery"] : [preferredMode]
 
   return restaurantDeals
-    .flatMap((restaurant) => modes.map((mode) => priceDeal(restaurant, zipCode, partySize, mode, budget)))
-    .filter((deal) => deal.finalTotal <= budget)
-    .sort((a, b) => Number(b.localMatch) - Number(a.localMatch) || a.finalTotal - b.finalTotal)
+    .flatMap((restaurant) => modes.map((mode) => scoreDeal(restaurant, zipCode, partySize, mode, budget)))
+    .filter((deal) => deal.estimatedDealTotal <= budget)
+    .sort((a, b) => Number(b.localMatch) - Number(a.localMatch) || b.dealScore - a.dealScore)
 }

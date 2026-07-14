@@ -5,7 +5,7 @@ import { BadgeDollarSign, DollarSign, ExternalLink, LocateFixed, ReceiptText, Se
 import { Button } from "@/components/ui/button"
 import { buildDeliveryLinks } from "@/lib/delivery-links"
 import { buildRestaurantSearchUrl, normalizeZipCode } from "@/lib/restaurant-deals"
-import { findTruePriceDeals, type FulfillmentMode } from "@/lib/true-price-deals"
+import { findBestDealMatches, type FulfillmentMode } from "@/lib/true-price-deals"
 
 export function TruePriceDealFinder() {
   const [zipCode, setZipCode] = useState("27601")
@@ -20,7 +20,7 @@ export function TruePriceDealFinder() {
   const restaurantWrapperBase = process.env.NEXT_PUBLIC_RESTAURANT_LINK_WRAPPER_BASE ?? ""
   const deliveryWrapperBase = process.env.NEXT_PUBLIC_DELIVERY_LINK_WRAPPER_BASE ?? ""
   const deals = useMemo(
-    () => findTruePriceDeals(numericBudget, normalizedZip, numericPartySize, mode).slice(0, 3),
+    () => findBestDealMatches(numericBudget, normalizedZip, numericPartySize, mode).slice(0, 3),
     [mode, normalizedZip, numericBudget, numericPartySize],
   )
 
@@ -30,20 +30,20 @@ export function TruePriceDealFinder() {
   }
 
   return (
-    <section id="true-price-finder" className="border-t border-border bg-background">
+    <section id="best-deal-finder" className="border-t border-border bg-background">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               <BadgeDollarSign className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-              True Price Deal Finder
+              Best Deal Match
             </span>
             <h2 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Find the cheapest final price, not just the loudest coupon
+              Find the best deal without becoming the ordering app
             </h2>
             <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">
-              DealFinder compares pickup and delivery after coupons, tax, delivery fees, service fees, and tip. This is
-              the “what will I actually pay?” view most deal apps miss.
+              DealFinder compares menu estimates, coupons, pickup links, and delivery links, then sends users to the
+              restaurant or delivery service to finish the order. Your app stays focused on discovery, coupons, and referrals.
             </p>
 
             <form onSubmit={onSubmit} className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -58,7 +58,7 @@ export function TruePriceDealFinder() {
                       inputMode="numeric"
                       maxLength={5}
                       className="w-full bg-transparent text-sm outline-none"
-                      aria-label="True price zip code"
+                      aria-label="Best deal zip code"
                     />
                   </span>
                 </label>
@@ -71,7 +71,7 @@ export function TruePriceDealFinder() {
                       onChange={(event) => setBudget(event.target.value)}
                       inputMode="numeric"
                       className="w-full bg-transparent text-sm outline-none"
-                      aria-label="True price budget"
+                      aria-label="Best deal budget"
                     />
                   </span>
                 </label>
@@ -82,7 +82,7 @@ export function TruePriceDealFinder() {
                     onChange={(event) => setPartySize(event.target.value)}
                     inputMode="numeric"
                     className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                    aria-label="True price party size"
+                    aria-label="Best deal party size"
                   />
                 </label>
                 <label className="text-sm font-medium text-foreground">
@@ -93,15 +93,15 @@ export function TruePriceDealFinder() {
                     className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                     aria-label="Pickup or delivery"
                   >
-                    <option value="best">Best total</option>
+                    <option value="best">Best match</option>
                     <option value="pickup">Pickup</option>
-                    <option value="delivery">Delivery</option>
+                    <option value="delivery">Delivery link</option>
                   </select>
                 </label>
               </div>
               <Button className="mt-5 min-h-11 w-full" type="submit">
                 <Search className="h-4 w-4" aria-hidden="true" />
-                Compare true prices under ${numericBudget || 0}
+                Find best matches under ${numericBudget || 0}
               </Button>
             </form>
           </div>
@@ -109,7 +109,7 @@ export function TruePriceDealFinder() {
           <div className="space-y-4">
             {hasSearched && deals.length === 0 && (
               <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
-                No true-price matches fit this budget. Try pickup, fewer people, or a higher budget.
+                No best-match deals fit this budget. Try pickup, fewer people, or a higher budget.
               </div>
             )}
 
@@ -125,10 +125,10 @@ export function TruePriceDealFinder() {
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">
-                            #{index + 1} true price
+                            #{index + 1} best match
                           </span>
                           <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                            {deal.mode}
+                            {deal.mode === "delivery" ? "delivery link" : "pickup"}
                           </span>
                           {deal.localMatch && (
                             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
@@ -140,18 +140,16 @@ export function TruePriceDealFinder() {
                         <p className="mt-1 text-sm text-muted-foreground">{deal.restaurant.bestOrder}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-mono text-2xl font-semibold text-primary">${deal.finalTotal.toFixed(2)}</p>
-                        <p className="text-xs text-muted-foreground">${deal.budgetLeft.toFixed(2)} under budget</p>
+                        <p className="font-mono text-2xl font-semibold text-primary">${deal.estimatedDealTotal.toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground">estimated after coupon</p>
                       </div>
                     </div>
 
                     <div className="mt-4 grid gap-2 rounded-xl bg-muted p-3 text-sm sm:grid-cols-2">
-                      <p>Subtotal: ${deal.subtotal.toFixed(2)}</p>
-                      <p>Coupon: -${deal.couponSavings.toFixed(2)} {deal.coupon ? `(${deal.coupon.code})` : ""}</p>
-                      <p>Tax: ${deal.tax.toFixed(2)}</p>
-                      <p>Service fee: ${deal.serviceFee.toFixed(2)}</p>
-                      <p>Delivery fee: ${deal.deliveryFee.toFixed(2)}</p>
-                      <p>Tip: ${deal.tip.toFixed(2)}</p>
+                      <p>Menu estimate: ${deal.estimatedMenuTotal.toFixed(2)}</p>
+                      <p>Coupon savings: -${deal.couponSavings.toFixed(2)} {deal.coupon ? `(${deal.coupon.code})` : ""}</p>
+                      <p>Budget room: ${deal.budgetLeft.toFixed(2)}</p>
+                      <p>Deal score: {Math.round(deal.dealScore)}</p>
                     </div>
                     <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
                       <ReceiptText className="h-4 w-4 text-primary" aria-hidden="true" />
@@ -162,7 +160,7 @@ export function TruePriceDealFinder() {
                       variant="outline"
                       render={
                         <a href={actionHref} target="_blank" rel="noopener noreferrer sponsored">
-                          {deal.mode === "delivery" ? "Open delivery option" : "Open pickup/menu option"}
+                          {deal.mode === "delivery" ? "Open delivery provider" : "Open pickup/menu option"}
                           <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         </a>
                       }

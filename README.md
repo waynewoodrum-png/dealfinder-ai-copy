@@ -29,11 +29,11 @@ Restaurant revenue options built into the UI:
 - DoorDash, Uber Eats, and local delivery search actions
 - Coupon cards with codes, expiration dates, copy-code actions, and redemption links
 - Coupon redemption tracking hooks
-- True-price comparisons after coupons, estimated tax, delivery fees, service fees, and tip
+- Best-match deal scoring after coupon savings, without handling food orders
 - Zip-targeted “eat under $50” budget deals
 - Premium date-night bundles with restaurant, venue, and dessert placements
 
-The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Delivery links search DoorDash, Uber Eats, and local delivery options; connect official delivery, reservation, coupon, or menu APIs when approved partner access is available.
+The current implementation uses sample restaurant inventory, coupon inventory, and search links that include the user's zip code. Users finish orders with the restaurant or delivery provider; connect official delivery, reservation, coupon, or menu APIs when approved partner access is available.
 
 ## Getting Started
 
