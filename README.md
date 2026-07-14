@@ -8,6 +8,16 @@ This repository is linked to a [v0](https://v0.app) project. You can continue de
 
 [Continue working on v0 →](https://v0.app/chat/projects/prj_BDlb3AQJdEp4GCuRVnTArCLpb8Xf)
 
+## Monetization and AI helper setup
+
+Retail storefront links are scaffolded for affiliate or sponsored placements. Add approved network values in Vercel Environment Variables before treating them as revenue-generating ads:
+
+- `AFFILIATE_LINK_WRAPPER_BASE` — optional network deep-link wrapper prefix
+- `AMAZON_ASSOCIATES_TAG` — optional Amazon Associates tag
+- `AFFILIATE_COMMISSION_RATE` — optional estimated commission rate for projections
+- `AI_GATEWAY_API_KEY` — required for live AI helper responses
+- `AI_HELPER_MODEL` — optional model override, defaults to `openai/gpt-5-mini`
+
 ## Getting Started
 
 First, run the development server:
