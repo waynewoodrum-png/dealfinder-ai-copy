@@ -7,6 +7,7 @@ import {
   numeric,
   integer,
   jsonb,
+  uniqueIndex,
 } from "drizzle-orm/pg-core"
 
 // ---------------------------------------------------------------------------
@@ -90,16 +91,26 @@ export const mealPlan = pgTable("meal_plan", {
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
-export const coinTransaction = pgTable("coin_transaction", {
-  id: serial("id").primaryKey(),
-  userId: text("userId").notNull(),
-  type: text("type").notNull(), // "earn" | "redeem"
-  coins: integer("coins").notNull(),
-  dollars: numeric("dollars", { precision: 10, scale: 2 }).notNull().default("0"),
-  reason: text("reason").notNull(),
-  refKey: text("refKey"),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-})
+export const coinTransaction = pgTable(
+  "coin_transaction",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("userId").notNull(),
+    type: text("type").notNull(), // "earn" | "redeem"
+    coins: integer("coins").notNull(),
+    dollars: numeric("dollars", { precision: 10, scale: 2 }).notNull().default("0"),
+    reason: text("reason").notNull(),
+    refKey: text("refKey"),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+  },
+  (table) => [
+    // Enforces idempotency for coin awards: ON CONFLICT DO NOTHING relies on
+    // this constraint to suppress duplicate (userId, refKey) inserts.
+    // NULL refKeys (e.g. redeem rows) are treated as distinct by Postgres, so
+    // multiple null-refKey rows per user remain allowed.
+    uniqueIndex("coin_transaction_user_ref_key").on(table.userId, table.refKey),
+  ],
+)
 
 // Single global row (id = "global") holding the app owner's affiliate config.
 export const affiliateSetting = pgTable("affiliate_setting", {
