@@ -1,24 +1,25 @@
-export const COINS_PER_DOLLAR = 10
+export const COINS_PER_DOLLAR = 100
 
 // Coins granted for each week that contains at least one claimed deal.
 export const COINS_PER_SAVING_WEEK = 10
 
 // Bonus coins granted when the current streak reaches a milestone length (in weeks).
 export const STREAK_MILESTONES: { weeks: number; bonus: number }[] = [
-  { weeks: 2, bonus: 20 },
-  { weeks: 4, bonus: 50 },
-  { weeks: 8, bonus: 120 },
-  { weeks: 12, bonus: 200 },
+  { weeks: 2, bonus: 25 },
+  { weeks: 4, bonus: 75 },
+  { weeks: 8, bonus: 150 },
+  { weeks: 12, bonus: 300 },
 ]
 
 // Coins granted for a saved weekly meal plan that lands at or under budget.
 export const COINS_PER_MEAL_PLAN = 25
 
 // Coins granted for a daily check-in (once per calendar day).
-export const DAILY_CHECKIN_COINS = 5
+export const DAILY_CHECKIN_COINS = 1
 
 // Preset redemption tiers (dollars off).
-export const REDEEM_TIERS = [5, 10, 25]
+export const REDEEM_TIERS = [5, 10, 20]
+export const MIN_REDEEM_DOLLARS = 5
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 

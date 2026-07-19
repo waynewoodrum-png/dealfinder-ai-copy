@@ -9,7 +9,7 @@ import { getCoinSummary } from "@/app/actions/coins"
 
 export const metadata = {
   title: "Rewards & Coins | DealFinder AI",
-  description: "Earn coins from your savings streak and redeem them for money off your next purchase.",
+  description: "Earn DealFinder coins from savings streaks, secret coupon drops, and reward milestones."
 }
 
 export default async function RewardsPage() {
@@ -32,7 +32,7 @@ export default async function RewardsPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground text-balance">Rewards &amp; coins</h1>
           <p className="mt-1 text-muted-foreground text-pretty">
-            Every week you keep saving earns coins. Cash them in for money off your next purchase.
+            Keep saving streaks alive, unlock coupon drops, and redeem coins once you reach the minimum credit tier.
           </p>
         </div>
         <RewardsPanel summary={summary} />

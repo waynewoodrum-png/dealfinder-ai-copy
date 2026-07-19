@@ -13,6 +13,7 @@ import {
   COINS_PER_DOLLAR,
   DAILY_CHECKIN_COINS,
   dailyCheckInKey,
+  MIN_REDEEM_DOLLARS,
 } from "@/lib/coins"
 
 async function getUserId() {
@@ -125,8 +126,8 @@ export async function redeemCoins(dollars: number): Promise<RedeemResult> {
   }
   // Whole-dollar redemptions keep the coin math clean.
   const roundedDollars = Math.floor(dollars)
-  if (roundedDollars < 1) {
-    return { ok: false, error: "Minimum redemption is $1." }
+  if (roundedDollars < MIN_REDEEM_DOLLARS) {
+    return { ok: false, error: `Minimum redemption is $${MIN_REDEEM_DOLLARS}.` }
   }
   const cost = dollarsToCoins(roundedDollars)
 

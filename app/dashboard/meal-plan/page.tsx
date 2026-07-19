@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { MealPlanner } from "@/components/dashboard/meal-planner"
+import { RecipeDiscovery } from "@/components/dashboard/recipe-discovery"
 import { getMealPlans } from "@/app/actions/meal-plan"
 import { getAffiliateConfig } from "@/app/actions/affiliate"
 
@@ -36,10 +37,13 @@ export default async function MealPlanPage() {
             Meal planner
           </h1>
           <p className="mt-1 text-muted-foreground text-pretty">
-            Plan a full week of meals and a smart shopping list that fits your grocery budget.
+            Discover budget recipes, compare grocery deal sources, and build a full week of meals that fits your grocery budget.
           </p>
         </div>
-        <MealPlanner savedPlans={savedPlans} affiliateEnabled={affiliateConfig.enabled} />
+        <div className="flex flex-col gap-6">
+          <RecipeDiscovery />
+          <MealPlanner savedPlans={savedPlans} affiliateEnabled={affiliateConfig.enabled} />
+        </div>
       </main>
     </div>
   )

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { headers } from "next/headers"
-import { CalendarRange, ArrowRight, Gift, DollarSign } from "lucide-react"
+import { CalendarRange, ArrowRight, Gift, DollarSign, BadgeDollarSign, Radar } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { getDeals } from "@/app/actions/deals"
 import { getCoinSummary } from "@/app/actions/coins"
@@ -100,6 +100,42 @@ export default async function DashboardPage() {
                 </p>
                 <p className="text-sm text-muted-foreground text-pretty">
                   Make money when shoppers buy through your deals. Set up affiliate links.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+          </Link>
+
+          <Link
+            href="/dashboard/merchant"
+            className="flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <BadgeDollarSign className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="font-semibold text-foreground">Merchant packages</p>
+                <p className="text-sm text-muted-foreground text-pretty">
+                  Sell featured placements, coupon campaigns, and zip-code sponsorships.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+          </Link>
+
+          <Link
+            href="/dashboard/watchlist"
+            className="flex items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Radar className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="font-semibold text-foreground">Deal watchlist</p>
+                <p className="text-sm text-muted-foreground text-pretty">
+                  Track target prices, rollbacks, and upcoming Thursday-style deal drops.
                 </p>
               </div>
             </div>
